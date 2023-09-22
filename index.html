@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html><head>
+<title></title>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="content-script-type" content="text/javascript" />
+<meta http-equiv="content-style-type" content="text/css" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="스마트쉼센터">
+<meta name="description" content="스마트쉼센터입니다.">
+<title>콘텐츠·교육자료 &gt; 자료실&gt; 스마트 쉼 센터</title>
+
+<link rel="stylesheet" href="css/font.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/ui.css">
+<link rel="stylesheet" href="css/ui_board.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/sub.css">
+<link rel="stylesheet" href="css/jquery-ui.css">
+
+<script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js"></script>
+<script src="https://unpkg.com/vue@3.2.40/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/csv@6.3.3/dist/umd/index.js"></script>
+<script src="https://unpkg.com/csv@6.3.3/dist/umd/sync.js"></script>
+
+</head>
+<body class="sub">
+
+<div class="header" style="background: center repeat-x url('images/category_header.png'); height:338px;"></div>
+<div id="sub_tit">
+	<h3>콘텐츠·교육자료 - 분류체계 프로토타입</h3>
+</div>
+
+<style type="text/css">
+.licenseType4 {border: 1px solid #d4d4d4; margin-top: 20px; padding: 30px; box-sizing: border-box; height: auto; display: inline-block; width: 100%}
+.float-left { float: left}
+.float-right { float: right}
+.alignL { text-align: left !important}
+.btn3 a{ font-size:15px; letter-spacing:-1px; display:block; padding:7px 15px; width:213px; box-sizing:border-box; border:solid 2px #333; background: url("/kr/images/common/icon_btn.jpg") no-repeat right; margin:10px 0;}
+.btn3 a, .btn3 a:active, .btn3 a:hover { color: #000}
+.kogl { padding-left: 30px; margin-top: 15px;  margin-bottom: 10px}
+.kogl li { list-style: disc;}
+input::placeholder {color: blue;}
+.readonly input:read-only {background-color : #d4d2d261;}
+p.c_desc { font-size: 90%; color:#72a2c0;}
+</style>
+
+<div id="sub_content">
+	<div id="content">
+		<div id="sub_028" class="inner">
+			<div class="board_view">
+				<div class="thead">
+					<p class="tit">스마트폰 과의존 예방교육 콘텐츠 검색(교육대상 및 주제별(2023))</p>
+					<ul class="author">
+						<li>2023-03-06</li>
+						<li>조회수 : 16409</li>
+					</ul>
+				</div>
+				<!-- <form id="frm" name="frm"> -->
+					<input type="hidden" id="currentPageNo1" name="currentPageNo" value="1">
+					<div class="search">
+						<div class="board_search2 board_search3">
+							<fieldset>
+								<legend>게시물 검색</legend>
+								<ul class="list">
+									<li>
+										<label for="sch_edu_target_cd" class="tit">대상</label>
+										<div class="con">
+											<select name="sch_edu_target_cd" id="sch_edu_target_cd" title="대상 선택" style="width:250px!;" v-model="targetSelected" @change="onChangedTarget">
+												<option v-for="o in targetOptions" :value="o">{{ o }}</option>
+											</select>
+									</li>
+									
+									<li>
+										<label for="sch_file_type_cd" class="tit">내용</label>
+										<div class="con">
+											<select name="sch_file_type_cd" id="sch_file_type_cd" title="포맷 선택" v-model="categorySelected" @change="onChangedCategory">
+												<option v-for="o in categoryOptions" :value="o">{{ o }}</option>
+											</select>
+										</div>
+									</li>
+									
+									<li>
+										<label for="SearchValue" class="tit">제목</label>
+										<div class="con">
+											<input type="text" id="SearchValue" name="SearchValue" placeholder="검색어를 입력해주세요" title="검색어를 입력해주세요" style="width:60%;" v-model="searchWord" @keyup.enter="submit">
+											
+											<button type="button" class="btn" title="입력한 검색어로 검색합니다." @click="submit">검색하기</button>											
+										</div>
+									</li>
+
+									<li></li>
+								</ul>
+							</fieldset>
+						</div>
+					</div>
+				<!-- </form> -->
+				
+				<table class="tbody" v-if="!searchWord && !fetched">
+					<tr><td style="text-align: center; height: 300px; vertical-align: middle;">대상 및 내용을 선택하거나, 검색어를 입력해주세요. 
+					</td></tr>
+				</table>
+				
+				<table class="tbody" v-if="fetched">
+					<tr><td style="text-align: center; height: 30px; vertical-align: middle;">
+						<p>검색 결과 총 {{ contents.length }}건의 콘텐츠가 있습니다.</p>
+						<p style="margin-top:10px;"><button type="button" class="btn" @click="clear" style="background-image:none;">검색 초기화</button></td></tr></p>
+				</table>
+				
+				<div v-if="fetched && contents.length">
+					<table class="tbody">
+						<caption>검색결과</caption>
+						<colgroup>
+							<col class="w139">
+							<col>
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row" width="20%">대상</th>
+								<th scope="row" width="20%">구분</th>								
+								<th scope="row" width="50%">제목</th>
+								<th scope="row" width="10%">영상보기</th>
+							</tr>
+							<tr v-for="c in contents">
+								<td>{{ c.target }}</td>
+								<td>{{ c.category }}</td>
+								<td>
+									<p>{{ c.title }}</p>
+									<p class="c_desc">{{ c.desc }}</p>
+								</td>
+								<td style="text-align: center;" v-if="c.link"><a :href="c.link" target="_video">📺</a></td>
+								<td style="text-align: center;" v-else="">영상없음</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				<div class="licenseType4 alignL">
+					<div class="float-left" style="width: 70%">
+						<strong>제4유형:출처표시+상업적 이용금지+변경금지</strong>
+						<ul class="kogl">
+							<li>출처표시</li>
+							<li>비상업적 이용만 가능</li>
+							<li>변형 등 2차적 저작물 작성 금지</li>
+						</ul>
+						<p>*주의 : 공공누리 유형마크를 다운로드 후 사용시 지정된 유형마크 <strong>파일명 변경을 금지</strong>해주시기 바랍니다.</p>
+					</div>
+					<div class="float-right" style="max-width: 213px">
+						<ul>
+							<li class="btn3"><a href="http://www.kogl.or.kr/info/licenseType4.do" target="_blank" class="green_bg">공공누리 일반증서 보기</a></li>
+							<li><img src="./images/img_opencode4_m.jpg" alt="공공누리"></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="header" style="background: center repeat-x url('images/category_footer.png'); height:249px;"></div>
+
+<script>
+Vue.createApp({
+	components: {
+	},
+	
+	data(){
+		return {
+			db: [],
+			
+			targetOptions: ['전체', '영아(만 -2세/-4세) 부모님', '영아(만 -2세/-4세) 부모님', '유아(만 3-5세/5-7세)', '유아(만 3-5세/5-7세) 부모님', '초등학생 1-2학년', '초등학생 1-2학년 부모님', '초등학생 3-4학년', '초등학생 3-4학년 부모님', '초등학생 5-6학년', '초등학생 5-6학년 부모님', '중학생', '중학생 부모님', '고등학생', '고등학생 부모님', '대학생', '대학생 부모님', '장애청소년', '장애청소년 부모님', '군인', '군인부모님', '직장인', '직장인 부모님', '일반성인', '일반성인 부모님', '전국민'],
+			targetSelected: '전체',
+			
+			categoryOptions: ['전체', '예절 및 가족', '건강관련', '전반적인 설명 및 개념 설명', '스마트폰 솔루션', '게임', 'SNS', '유튜브 및 동영상', 'OTT(넷플릭스)', '음란물', '스마트폰 도박', '주식', '정보 검색(뉴스 등)', '쇼핑', '특정 앱 과다사용'],
+			categorySelected: '전체',
+			
+			searchWord: '',
+			
+			fetched: false,
+			contents: [],
+		};
+	},
+	
+	computed: {
+		hasResult: () => (this.searchWord && this.contents.length > 0),
+	},
+	
+	watch: {
+	},
+	
+	methods: {
+		async loadDB(){
+			let resp = await axios.get(`db/cchain_contents_category.csv?t=` + Date.now());
+			let data = csv_sync.parse(resp.data, {
+				skip_empty_lines: true,
+				delimiter: ',',
+				columns: true,
+				// from_line: 2,
+			});
+			
+			this.db = data;
+		},
+		
+		onChangedTarget(){
+			// if(this.searchWord)this.search();
+			// if(this.fetched && !this.searchWord)this.fetched = false;
+			// this.submit();
+			this.search();
+		},
+		onChangedCategory(){
+			// if(this.searchWord)this.search();
+			// if(this.fetched && !this.searchWord)this.fetched = false;
+			// this.submit();
+			this.search();
+		},
+		submit(){
+			this.searchWord = this.searchWord.trim();
+			this.search();
+			
+			if(this.fetched && !this.searchWord)this.fetched = false;
+		},
+		search(){
+			this.fetched = true;
+			
+			if(this.searchWord){
+				this.contents = this.db.filter((d) => {
+					let ok = true;
+					if(ok && this.targetSelected != '전체')ok = (d.target == this.targetSelected);
+					if(ok && this.categorySelected != '전체')ok = (d.category == this.categorySelected);
+					if(ok)ok = d.title.includes(this.searchWord);
+					return ok;
+				});
+			}else if(this.targetSelected != '전체' || this.categorySelected != '전체'){
+				this.contents = this.db.filter((d) => {
+					let ok = true;
+					if(ok && this.targetSelected != '전체')ok = (d.target.includes(this.targetSelected));
+					if(ok && this.categorySelected != '전체')ok = (d.category.includes(this.categorySelected));
+					return ok;
+				});
+			}else{
+				this.contents = [];
+			}
+		},
+		clear(){
+			location.reload();
+		}
+	},
+	
+	created(){
+	},
+	mounted(){
+		this.loadDB();
+	},
+}).mount('#sub_content');
+</script>
+
+</body></html>

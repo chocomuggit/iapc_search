@@ -1,0 +1,39 @@
+@charset "UTF-8";
+
+
+/*css 에서 font-weight:bold 는 사용을 자제하고, 가급적 수치로 적용해주세요*/
+/*body 기본 크기*/
+@font-face {
+    font-family: 'Noto Sans KR';
+    font-style: normal;
+    font-weight: 300;
+    src: /*local('Noto Sans DemiLight'), local('NotoSans-DemiLight'),*/
+	url("./font/NotoSans-DemiLight.woff") format('woff'),
+	url("./font/NotoSans-DemiLight.otf") format('opentype');
+}
+
+
+/*h태그, 테이블th, gnb, 활성화된 text,  본문글에서 bold 처리해야하는 대상,*/
+@font-face {
+    font-family: 'Noto Sans KR';
+    font-style: normal;
+    font-weight: 400;
+    src: /*local('Noto Sans Medium'), local('NotoSans-Medium'),*/
+	url("./font/NotoSans-Medium.woff") format('woff'),
+	url("./font/NotoSans-Medium.otf") format('opentype');
+}
+
+/*폰트크기가 28px 이상이고(크고) 강조 하고싶을때*/
+@font-face {
+    font-family: 'Noto Sans KR';
+    font-style: normal;	
+    font-weight: 500;
+    src: /*local('Noto Sans Bold'), local('NotoSans-Bold'),*/
+	url("./font/NotoSans-Bold.woff") format('woff'),
+	url("./font/NotoSans-Bold.otf") format('opentype');
+}
+
+
+
+
+
