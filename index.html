@@ -26,6 +26,8 @@
 <script src="https://unpkg.com/csv@6.3.3/dist/umd/index.js"></script>
 <script src="https://unpkg.com/csv@6.3.3/dist/umd/sync.js"></script>
 
+<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
+
 </head>
 <body class="sub">
 
@@ -46,6 +48,47 @@
 input::placeholder {color: blue;}
 .readonly input:read-only {background-color : #d4d2d261;}
 p.c_desc { font-size: 90%; color:#72a2c0;}
+
+.video-popup.reveal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  z-index:9
+}
+
+.video-popup .video-wrapper {
+  position: relative;
+  width: 82%;
+  padding-bottom: 45%;
+  z-index: 10
+}
+
+.video-popup .video-wrapper iframe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid black;
+  background: black;
+}
+
+.video-popup.reveal .video-popup-closer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, .85);  
+  background-image: url("images/btn_close.png");
+  background-repeat: no-repeat;
+  background-position: right top	;
+  z-index: 9
+} 
+
 </style>
 
 <div id="sub_content">
@@ -131,7 +174,10 @@ p.c_desc { font-size: 90%; color:#72a2c0;}
 									<p>{{ c.title }}</p>
 									<p class="c_desc">{{ c.desc }}</p>
 								</td>
-								<td style="text-align: center;" v-if="c.link"><a :href="c.link" target="_video">📺</a></td>
+								<td style="text-align: center;" v-if="c.link">
+									<a onClick="javascript:play_video(this);" :data-video="c.link"><img src="images/btn_youtube.png" width="22" height="22" /></a>
+									<!--<a class="vid_play" :data-video="c.link"><img src="images/btn_youtube.png" width="22" height="22" /></a>-->
+								</td>
 								<td style="text-align: center;" v-else="">영상없음</td>
 							</tr>
 						</tbody>
@@ -160,6 +206,12 @@ p.c_desc { font-size: 90%; color:#72a2c0;}
 	</div>
 </div>
 
+<!-- youtube viewer placeholder start -->
+<div class="video-popup">
+  <div class="video-popup-closer"></div>
+</div>
+<!-- youtube viewer placeholder end -->
+
 <div class="header" style="background: center repeat-x url('images/category_footer.png'); height:249px;"></div>
 
 <script>
@@ -171,7 +223,7 @@ Vue.createApp({
 		return {
 			db: [],
 			
-			targetOptions: ['전체', '영아(만 -2세/-4세)', '유아(만 3-5세/5-7세)', '초등학생 1-2학년', '초등학생 3-4학년', '초등학생 5-6학년', '중학생', '고등학생', '대학생', '장애청소년', '군인', '직장인', '일반 성인', '전국민'],
+			targetOptions: ['전체', '영아(만 -2세/-4세)', '영아(만 -2세/-4세) 학부모', '유아(만 3-5세/5-7세)', '유아(만 3-5세/5-7세) 학부모', '초등학생 1-2학년', '초등학생 1-2학년 학부모', '초등학생 3-4학년', '초등학생 3-4학년 학부모', '초등학생 5-6학년', '초등학생 5-6학년 학부모', '중학생', '중학생 학부모', '고등학생', '고등학생 학부모', '장애청소년', '장애청소년 학부모', '대학생', '군인', '직장인', '일반성인', '전국민'],
 			targetSelected: '전체',
 			
 			categoryOptions: ['전체', '예절 및 가족', '건강관련', '전반적인 설명 및 개념 설명', '스마트폰 솔루션', '게임', 'SNS', '유튜브 및 동영상', 'OTT(넷플릭스)', '음란물', '스마트폰 도박', '주식', '정보 검색(뉴스 등)', '쇼핑', '특정 앱 과다사용', 'ICT 진로교육'],
@@ -243,6 +295,7 @@ Vue.createApp({
 			}else{
 				this.contents = [];
 			}
+
 		},
 		clear(){
 			location.reload();
@@ -257,4 +310,24 @@ Vue.createApp({
 }).mount('#sub_content');
 </script>
 
+<script>
+function play_video(thisobj) {
+	$(".video-popup").addClass("reveal"),
+	$(".video-popup .video-wrapper").remove(),
+	$(".video-popup").append("<div class='video-wrapper'><iframe width='560' height='315' src='" + $(thisobj).data("video") + "?rel=0&playsinline=1&autoplay=1' allow='autoplay; encrypted-media' allowfullscreen></iframe></div>")
+}
+
+$("a.vid_play").click(function() {
+	$(".video-popup").addClass("reveal"),
+	$(".video-popup .video-wrapper").remove(),
+	$(".video-popup").append("<div class='video-wrapper'><iframe width='560' height='315' src='" + $(this).data("video") + "?rel=0&playsinline=1&autoplay=1' allow='autoplay; encrypted-media' allowfullscreen></iframe></div>")
+}),
+$(".video-popup-closer").click(function() {
+	$(".video-popup .video-wrapper").remove(),
+	$(".video-popup").removeClass("reveal")
+});
+
+</script>
+
 </body></html>
+
