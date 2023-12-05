@@ -90,7 +90,7 @@ p.c_desc { font-size: 90%; color:#72a2c0;}
 } 
 
 </style>
-
+x3
 <div id="sub_content">
 	<div id="content">
 		<div id="sub_028" class="inner">
@@ -125,7 +125,19 @@ p.c_desc { font-size: 90%; color:#72a2c0;}
 											</select>
 										</div>
 									</li>
+
+									<li>
+										<label for="c_year" class="tit">제작연도</label> 
+										<div class="con">
+										<select name="c_year" id="c_year" title="제작연도 선택" v-model="yearSelected" @change="onChangedYear">
+											<option v-for="o in yearOptions" :value="o">{{ o }}</option>
+										</select>
+										</div>
+									</li>
 									
+									<li>
+									</li>
+
 									<li>
 										<label for="SearchValue" class="tit">제목</label>
 										<div class="con">
@@ -135,7 +147,6 @@ p.c_desc { font-size: 90%; color:#72a2c0;}
 										</div>
 									</li>
 
-									<li></li>
 								</ul>
 							</fieldset>
 						</div>
@@ -154,31 +165,39 @@ p.c_desc { font-size: 90%; color:#72a2c0;}
 				</table>
 				
 				<div v-if="fetched && contents.length">
-					<table class="tbody">
+					<table class="board_list mb50">
 						<caption>검색결과</caption>
 						<colgroup>
-							<col class="w139">
-							<col>
+							<col class="wd16" />
+							<col class="wd15" />
+							<col class="wd8" />
+							<col class="wd35" />
+							<col class="wd6" />
 						</colgroup>
-						<tbody>
+						<thead>
 							<tr>
-								<th scope="row" width="20%">대상</th>
-								<th scope="row" width="20%">구분</th>								
-								<th scope="row" width="50%">제목</th>
-								<th scope="row" width="10%">영상보기</th>
+								<th scope="col" class="target" style="text-align: center; padding: 12px 0 12px 0px;">대상</th>
+								<th scope="col" class="use" style="text-align: center; padding: 12px 0 12px 0px;">구분</th>
+								<th scope="col" class="made" style="text-align: center; padding: 12px 0 12px 0px;">제작연도</th>
+								<th scope="col" class="sbj" style="text-align: center; padding: 12px 0 12px 0px;">제목</th>
+								<th scope="col" class="hit" style="text-align: center; padding: 12px 0 12px 0px;">보기</th>
 							</tr>
+						</thead>
+						<tbody>
 							<tr v-for="c in contents">
-								<td>{{ c.target }}</td>
-								<td>{{ c.category }}</td>
-								<td>
+								<td data-cell-header="대상 | " class="target" style="text-align: center;">{{ c.target }}</td>
+								<td data-cell-header="구분 | " class="use" style="text-align: center;">{{ c.category }}</td>
+								<td data-cell-header="제작연도 | " class="made" style="text-align: center;">{{ c.date_year }}</td>
+								<td data-cell-header="제목 | " class="sbj">
 									<p>{{ c.title }}</p>
 									<p class="c_desc">{{ c.desc }}</p>
 								</td>
-								<td style="text-align: center;" v-if="c.link">
+								<td style="text-align: center;" v-if="c.link" data-cell-header="보기 | " class="hit">
 									<a onClick="javascript:play_video(this);" :data-video="c.link"><img src="images/btn_youtube.png" width="22" height="22" /></a>
 									<!--<a class="vid_play" :data-video="c.link"><img src="images/btn_youtube.png" width="22" height="22" /></a>-->
 								</td>
-								<td style="text-align: center;" v-else="">영상없음</td>
+								<!--<td style="text-align: center;" v-else="">영상없음</td>-->
+								<td style="text-align: center;" v-else="" data-cell-header="보기 | " class="hit"><img src="images/btn_youtube_no.png" width="22" height="22" alt="영상없음"/></td>
 							</tr>
 						</tbody>
 					</table>
@@ -229,6 +248,9 @@ Vue.createApp({
 			categoryOptions: ['전체', '예절 및 가족', '건강관련', '전반적인 설명 및 개념 설명', '스마트폰 솔루션', '게임', 'SNS', '유튜브 및 동영상', 'OTT(넷플릭스)', '음란물', '스마트폰 도박', '주식', '정보 검색(뉴스 등)', '쇼핑', '특정 앱 과다사용', 'ICT 진로교육'],
 			categorySelected: '전체',
 			
+			yearOptions: ['전체', '2023','2022','2021','2020','2019','2018'],
+			yearSelected: '전체',
+
 			searchWord: '',
 			
 			fetched: false,
@@ -268,6 +290,12 @@ Vue.createApp({
 			// this.submit();
 			this.search();
 		},
+		onChangedYear(){
+			// if(this.searchWord)this.search();
+			// if(this.fetched && !this.searchWord)this.fetched = false;
+			// this.submit();
+			this.search();
+		},
 		submit(){
 			this.searchWord = this.searchWord.trim();
 			this.search();
@@ -282,14 +310,16 @@ Vue.createApp({
 					let ok = true;
 					if(ok && this.targetSelected != '전체')ok = (d.target.includes(this.targetSelected.replace(" / 학부모", "")));
 					if(ok && this.categorySelected != '전체')ok = (d.category.includes(this.categorySelected.replace(" / 학부모", "")));
+					if(ok && this.yearSelected != '전체')ok = (d.date_year.includes(this.yearSelected));
 					if(ok)ok = d.title.includes(this.searchWord);
 					return ok;
 				});
-			}else if(this.targetSelected != '전체' || this.categorySelected != '전체'){
+			}else if(this.targetSelected != '전체' || this.categorySelected != '전체' || this.yearSelected != '전체'){
 				this.contents = this.db.filter((d) => {
 					let ok = true;
 					if(ok && this.targetSelected != '전체')ok = (d.target.includes(this.targetSelected.replace(" / 학부모", "")));
 					if(ok && this.categorySelected != '전체')ok = (d.category.includes(this.categorySelected.replace(" / 학부모", "")));
+					if(ok && this.yearSelected != '전체')ok = (d.date_year.includes(this.yearSelected));
 					return ok;
 				});
 			}else{
